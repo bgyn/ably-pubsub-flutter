@@ -722,11 +722,13 @@ static const FlutterHandler _realtimeAuthCreateTokenRequest = ^void(AblyFlutter 
     _channel = channel;
     _streamsChannel = streamsChannel;
 
-    if (handleAPNs) {
-        UNUserNotificationCenter *const center = UNUserNotificationCenter.currentNotificationCenter;
-        _pushNotificationEventHandlers = [[PushNotificationEventHandlers alloc] initWithDelegate: center.delegate andMethodChannel: channel];
-        center.delegate = _pushNotificationEventHandlers;
-    }
+    // Patched: Do not wrap UNUserNotificationCenter delegate to prevent infinite recursion
+    // with firebase_messaging on UIScene apps. Upstream issue: ably/ably-flutter #560.
+    // if (handleAPNs) {
+    //     UNUserNotificationCenter *const center = UNUserNotificationCenter.currentNotificationCenter;
+    //     _pushNotificationEventHandlers = [[PushNotificationEventHandlers alloc] initWithDelegate: center.delegate andMethodChannel: channel];
+    //     center.delegate = _pushNotificationEventHandlers;
+    // }
 
     _handlers = @{
         AblyPlatformMethod_getPlatformVersion: _getPlatformVersion,
